@@ -65,7 +65,7 @@ public class UserRecordServiceImpl implements UserRecordService {
     public UserRecordResponse updateUserRecord(UserRecordRequest userRecordRequest) {
 
         UserRecord userExist = repository.findById(userRecordRequest.getDetails().getId())
-                .orElseThrow(() -> new RuntimeException("User record not found"));
+                .orElseThrow(() -> new NotFoundException("User record not found"));
 
         userExist.setFirstName(userRecordRequest.getDetails().getFirstName());
         userExist.setLastName(userRecordRequest.getDetails().getLastName());
