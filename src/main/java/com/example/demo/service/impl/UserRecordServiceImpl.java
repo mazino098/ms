@@ -7,6 +7,7 @@ import com.example.demo.model.response.*;
 import com.example.demo.repository.UserRecordRepository;
 import com.example.demo.service.UserRecordService;
 import jakarta.transaction.Transactional;
+import com.example.demo.utility.UserRecordValidatorUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,8 @@ public class UserRecordServiceImpl implements UserRecordService {
 
     @Override
     public UserRecordResponse createUserRecord(UserRecordRequest userRecordRequest) {
+
+        UserRecordValidatorUtil.validate(userRecordRequest);
 
         UserRecord user = new UserRecord();
         user.setFirstName(userRecordRequest.getDetails().getFirstName());
