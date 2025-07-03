@@ -20,7 +20,7 @@ public class UserRecordController {
     }
 
 
-    @PostMapping("/create")
+    @PostMapping("/Create")
     public UserRecordResponse createUserRecord(@RequestBody UserRecordRequest request){
 
         return userRecordService.createUserRecord(request);
