@@ -1,13 +1,14 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.model.UserRecord;
+import com.example.demo.model.error.NotFoundException;
 import com.example.demo.model.request.UserRecordRequest;
-import com.example.demo.model.response.UserRecordBaseResponse;
-import com.example.demo.model.response.UserRecordResponse;
-import com.example.demo.model.response.UserRecordWrapperResponse;
+import com.example.demo.model.response.*;
 import com.example.demo.repository.UserRecordRepository;
 import com.example.demo.service.UserRecordService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class UserRecordServiceImpl implements UserRecordService {
 
         List<UserRecordBaseResponse> base = listAll.stream()
                 .map(userRecord -> UserRecordBaseResponse.builder()
+                        .id(userRecord.getId())
                         .firstName(userRecord.getFirstName())
                         .lastName(userRecord.getLastName())
                         .build()).toList();
@@ -59,13 +61,47 @@ public class UserRecordServiceImpl implements UserRecordService {
     }
 
     @Override
-    public UserRecordResponse updateUserRecord(UserRecordRequest userRecordRequest, Long id) {
+    @Transactional
+    public UserRecordResponse updateUserRecord(UserRecordRequest userRecordRequest) {
 
-        UserRecord userExist = repository.findById(id)
-                .orElseThrow();
+        UserRecord userExist = repository.findById(userRecordRequest.getDetails().getId())
+                .orElseThrow(() -> new RuntimeException("User record not found"));
+
+        userExist.setFirstName(userRecordRequest.getDetails().getFirstName());
+        userExist.setLastName(userRecordRequest.getDetails().getLastName());
+
+        UserRecordBaseResponse base = UserRecordBaseResponse.builder()
+                .id(userExist.getId())
+                .firstName(userExist.getFirstName())
+                .lastName(userExist.getLastName())
+                .build();
+
+        UserRecordResponse response =UserRecordResponse.builder()
+                .userRecordBaseResponse(base)
+                .build();
+
+        return response;
+    }
 
 
-        return null;
+    @Override
+    public UserRecordDeleteResponse deleteUserRecord(Long id){
+
+        UserRecord userExisting = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User does not existing"));
+
+        repository.deleteById(id);
+
+        UserRecordBaseDeleteResponse base = UserRecordBaseDeleteResponse.builder()
+                        .message("UserRecord Does not exist").
+                build();
+
+
+        UserRecordDeleteResponse response = UserRecordDeleteResponse.builder()
+                        .userRecordBaseDeleteResponse(base).
+                build();
+
+        return response;
     }
 
 
